@@ -10,6 +10,8 @@ export class ActorController {
         private actorService: ActorService,
     ) {}
 
+    @ApiOperation({ summary: 'Get actor list' })
+    @ApiResponse({ status: 201, description: '' })
     @Get('/')
     async getAllActors() {
         return await this.actorService.getAllActor();
@@ -18,7 +20,7 @@ export class ActorController {
     @ApiOperation({ summary: 'Get actor detail by ID' })
     @ApiResponse({ status: 201, description: 'Actor found!' })
     @Get('/:id')
-    async getActorDetailById(@Param('id', ParseIntPipe) id: number) { // Use 'id' here as well
+    async getActorDetailById(@Param('id', ParseIntPipe) id: number) {
       return await this.actorService.getActorDetail(id);
     }
 
