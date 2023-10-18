@@ -43,12 +43,31 @@ export class ActorService {
 
     // Delete an actor
     async deleteAnActor(id: number): Promise<actor>{
+
+        const actor = await this.prismaService.actor.findUnique({
+            where: {actor_id: id},
+        });
+
+        if (!actor) {
+            throw new NotFoundException('Actor not found!');
+        }
+
         return this.prismaService.actor.delete({where:{actor_id:id}});
     }
 
     // Update an actor
     async updateAnActor(id: number, data: UpdateActorDto ): Promise<actor> {
+
+        const actor = await this.prismaService.actor.findUnique({
+            where: {actor_id: id},
+        });
+
+        if (!actor) {
+            throw new NotFoundException('Actor not found!');
+        }
+
         const {first_name, last_name, last_update} = data;
+        
         return this.prismaService.actor.update({
             where:{actor_id: id}, data: {
                 first_name,

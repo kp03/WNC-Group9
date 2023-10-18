@@ -281,3 +281,73 @@
     ```
 14. Homework:
     - Try to implement the ```delete``` and the ```update``` api endpoints yourself
+
+## NestJS API Documentation With Swagger Guide
+
+1. Setup swagger in ```main.ts```
+    ```typescript
+    async function bootstrap() {
+    const app = await NestFactory.create(AppModule);
+    // Set this up to automatically validate
+    app.useGlobalPipes(
+        new ValidationPipe({
+        transform: true,
+    }));
+
+    const config = new DocumentBuilder()
+        .setTitle('Sakila Api').setVersion('1.0').build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('documentation', app, document);
+    await app.listen(4000);
+    }
+    ```
+
+2. Within the bootstrap, we will setup the ```ValidationPipe transform``` to actually setup the validation for any data.
+3. By using this, we'll actually don't need to worry about adding the ```ParseIntPipe``` or things like that within our controller.
+4. Now, we'll be focusing on writing the dto for the create and update.     
+    - ```create.actor.dto.ts```
+        ```typescript
+        import { ApiProperty } from "@nestjs/swagger"
+        import { IsNotEmpty, IsString } from "class-validator"
+
+        export class CreateActorDto {
+
+            @ApiProperty({example: 'John'})    
+            @IsNotEmpty()
+            @IsString()
+            first_name: string
+
+            @ApiProperty({example: 'Doe'})    
+            @IsNotEmpty()
+            @IsString()
+            last_name:  string
+            
+            last_update: Date
+
+            film_actor: []
+        }
+        ```
+    - As you can see, now we will add in a ```IsString()```, ```IsNotEmpty()``` for the ```first_name``` and ```last_name``` property, which will ensure that the user must be putting in the data as a string, and it shouldn't be emty also.
+    - By using the dto and parse it in the controller within the ```actor.controller.ts```, we can ensure what the users input is correct each time they call for the API.
+        ```typescript
+        @Put('/:id')
+        @ApiOperation({summary: 'Edit an actor detail'})
+        @ApiResponse({ status: 200, description: 'Actor detail updated!' })
+        @ApiResponse({ status: 404, description: 'Actor not found!' })
+        @ApiResponse({ type: UpdateActorDto })
+            async updateAnActor(@Param('id') id:number, @Body() updateActorDto: UpdateActorDto) {
+                return await this.actorService.updateAnActor(id, updateActorDto );
+            }
+        }   
+        ```
+5. Note
+    - When writing the controller for the API, we can actually use the "@" to specify the decorators that we want to use for that particular controller.
+    - Some key decoration which we could be usually using is the:
+    - ```@ApiOperation```, ```@ApiResponse```, ```@ApiResponse```.
+    - Of which it describe the Operation of that API, the Response of that API and the Body that it will intake.
+    - Furthermore, we also have the ```@Param``` parameter which we'll use if that api need that parameter to be called successfully.
+    - For more information, you can visit the documentation here: 
+        - https://docs.nestjs.com/openapi/decorators 
+        - https://docs.nestjs.com/openapi/introduction
+
